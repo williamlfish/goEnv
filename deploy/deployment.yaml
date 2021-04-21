@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  $SVC_NAME
+  labels:
+    app: $SVC_NAME
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $SVC_NAME
+  template:
+    metadata:
+      labels:
+        app: $SVC_NAME
+    spec:
+      containers:
+        - name: $SVC_NAME
+          imagePullPolicy: Always
+          image: gcr.io/$PROJECT/$SVC_NAME:$GIT_TAG
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+#          here we are just getting the mongo ip from whatever we set it to in the yaml
+#          check out the bin/deploy.sh for how we are setting it
+          env:
+            - name: MONGO_ADDRESS
+              value: $MONGO_ADDRESS
+#          here we are actually setting the secret to look for in kube
+          envFrom:
+            - secretRef:
+                name: "$SVC_NAME"
+
